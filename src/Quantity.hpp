@@ -29,4 +29,11 @@ operator*(Quantity<Unit1, Scalar> q1, Quantity<Unit2, Scalar> q2)
     return Quantity<ProductUnitT<Unit1, Unit2>, Scalar>{q1.value * q2.value};
 }
 
+template<class Unit1, class Unit2, class Scalar>
+Quantity<DivisionUnitT<Unit1, Unit2>, Scalar>
+operator/(Quantity<Unit1, Scalar> q1, Quantity<Unit2, Scalar> q2)
+{
+    return Quantity<DivisionUnitT<Unit1, Unit2>, Scalar>{q1.value / q2.value};
+}
+
 #endif

@@ -16,4 +16,7 @@ int main()
     std::cout << "i = " << i << std::endl;
     std::cout << "l t = " << l * t << std::endl;
     std::cout << "l m t i = " << l * m * t * i << std::endl;
+    auto a = l / t / t;
+    std::cout << "a = " << a << std::endl;
+    std::cout << "f = " << m * a << std::endl;
 }

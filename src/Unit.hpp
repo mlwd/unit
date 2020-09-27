@@ -2,10 +2,11 @@
 #ifndef UNIT_HPP
 #define UNIT_HPP
 
-template<class UnitTrait, int Exp>
+template<class UT, int Exp>
 struct BaseUnitTemplate
 {
     static const int exponent = Exp;
+    typedef UT UnitTrait;
     static std::string name()
     {
         std::string s;
@@ -21,6 +22,24 @@ struct BaseUnitTemplate
         return s;
     }
 };
+
+template<class BaseUnit1, class BaseUnit2>
+struct BaseUnitProduct
+{
+    typedef BaseUnitTemplate<typename BaseUnit1::UnitTrait, BaseUnit1::exponent + BaseUnit2::exponent> type;
+};
+
+template<class BaseUnit1, class BaseUnit2>
+using BaseUnitProductT = typename BaseUnitProduct<BaseUnit1, BaseUnit2>::type;
+
+template<class BaseUnit1, class BaseUnit2>
+struct BaseUnitDivision
+{
+    typedef BaseUnitTemplate<typename BaseUnit1::UnitTrait, BaseUnit1::exponent - BaseUnit2::exponent> type;
+};
+
+template<class BaseUnit1, class BaseUnit2>
+using BaseUnitDivisionT = typename BaseUnitDivision<BaseUnit1, BaseUnit2>::type;
 
 struct MeterTrait
 {
@@ -66,24 +85,24 @@ struct AmpereUnitTemplate : public BaseUnitTemplate<AmpereTrait, Exp>
     using BaseUnitTemplate<AmpereTrait, Exp>::exponent;
 };
 
-template<class M, class K, class S, class A>
+template<class MU, class KU, class SU, class AU>
 struct Unit
 {
-    static const int meter = M::exponent;
-    static const int kilogram = K::exponent;
-    static const int second = S::exponent;
-    static const int ampere = A::exponent;
+    typedef MU MeterUnit;
+    typedef KU KilogramUnit;
+    typedef SU SecondUnit;
+    typedef AU AmpereUnit;
 
     static std::string name()
     {
         std::string n;
-        n += M::name();
+        n += MU::name();
         if (!n.empty() && n.back() != ' ') n += " ";
-        n += K::name();
+        n += KU::name();
         if (!n.empty() && n.back() != ' ') n += " ";
-        n += S::name();
+        n += SU::name();
         if (!n.empty() && n.back() != ' ') n += " ";
-        n += A::name();
+        n += AU::name();
         return n;
     }
 
@@ -118,14 +137,28 @@ template<class Unit1, class Unit2>
 struct ProductUnit
 {
     typedef Unit<
-        MeterUnitTemplate<Unit1::meter + Unit2::meter>,
-        KilogramUnitTemplate<Unit1::kilogram + Unit2::kilogram>,
-        SecondUnitTemplate<Unit1::second + Unit2::second>,
-        AmpereUnitTemplate<Unit1::ampere + Unit2::ampere>>
+        BaseUnitProductT<typename Unit1::MeterUnit,    typename Unit2::MeterUnit>,
+        BaseUnitProductT<typename Unit1::KilogramUnit, typename Unit2::KilogramUnit>,
+        BaseUnitProductT<typename Unit1::SecondUnit,   typename Unit2::SecondUnit>,
+        BaseUnitProductT<typename Unit1::AmpereUnit,   typename Unit2::AmpereUnit>>
         type;
 };
 
 template<class Unit1, class Unit2>
 using ProductUnitT = typename ProductUnit<Unit1, Unit2>::type;
+
+template<class Unit1, class Unit2>
+struct DivisionUnit
+{
+    typedef Unit<
+        BaseUnitDivisionT<typename Unit1::MeterUnit,    typename Unit2::MeterUnit>,
+        BaseUnitDivisionT<typename Unit1::KilogramUnit, typename Unit2::KilogramUnit>,
+        BaseUnitDivisionT<typename Unit1::SecondUnit,   typename Unit2::SecondUnit>,
+        BaseUnitDivisionT<typename Unit1::AmpereUnit,   typename Unit2::AmpereUnit>>
+        type;
+};
+
+template<class Unit1, class Unit2>
+using DivisionUnitT = typename DivisionUnit<Unit1, Unit2>::type;
 
 #endif
